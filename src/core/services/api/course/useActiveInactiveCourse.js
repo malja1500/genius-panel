@@ -1,9 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import {
-  showErrorToast,
-  showSuccessToast,
-} from "../../../../utility/toast.utils";
 import http from "../../interceptor";
 
 export const useActiveInactiveCourse = () => {
@@ -18,20 +14,16 @@ export const useActiveInactiveCourse = () => {
           id: data.id,
         })
         .then((res) => res.data),
-    onSuccess: (data, deletedData) => {
-      showSuccessToast(
-        `دوره با موفقیت ${deletedData.active ? "فعال" : "غیرفعال"} شد !`
-      );
-
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["courseList"],
       });
       queryClient.invalidateQueries({
+        queryKey: ["courseById"],
+      });
+      queryClient.invalidateQueries({
         queryKey: ["teacherCourseList"],
       });
-    },
-    onError: () => {
-      showErrorToast("مشکلی در فعال یا غیرفعال کردن دوره به وجود آمد !");
     },
   });
 };

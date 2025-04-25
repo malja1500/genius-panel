@@ -14,7 +14,7 @@ import "@styles/react/apps/app-email.scss";
 import toast from "react-hot-toast";
 
 // ** Core Imports
-import { adminCommentManagementAPI } from "../core/services/api/comment/admin-comment-management.api";
+import { useAdminCommentManagement } from "../core/services/api/comment/useAdminCommentManagement.api";
 
 const CommentsPage = () => {
   // ** States

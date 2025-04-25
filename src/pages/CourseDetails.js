@@ -1,13 +1,12 @@
 // ** React Imports
-import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import { useNavigate, useParams } from "react-router-dom";
+import { useState } from "react";
+import { Navigate, useParams } from "react-router-dom";
 
 // ** Reactstrap Imports
 import { Col, Row } from "reactstrap";
 
 // ** Core Imports
-import { getCourseByIdAPI } from "../core/services/api/course/get-course-by-id.api";
+import { useCourseById } from "../core/services/api/course/useCourseById.api";
 
 // ** User View Components
 import CourseInfoCard from "../@core/components/CourseDetails/CourseInfoCard";
@@ -18,12 +17,11 @@ import "@styles/react/apps/app-users.scss";
 
 const CourseDetailsPage = () => {
   // ** States
-  const [course, setCourse] = useState();
   const [active, setActive] = useState("1");
 
   // ** Hooks
   const { id } = useParams();
-  const navigate = useNavigate();
+  const { data: course } = useCourseById(id);
 
   const toggleTab = (tab) => {
     if (active !== tab) {
@@ -31,22 +29,7 @@ const CourseDetailsPage = () => {
     }
   };
 
-  // ** Get Course
-  useEffect(() => {
-    const fetchCourse = async () => {
-      try {
-        const getCourse = await getCourseByIdAPI(id);
-
-        setCourse(getCourse);
-      } catch (error) {
-        toast.error("مشکلی در دریافت دوره به وجود آمد !");
-      }
-    };
-
-    fetchCourse();
-  }, []);
-
-  if (!course) navigate("/courses");
+  if (!course) <Navigate to="/courses" />;
 
   return (
     <div className="app-user-view">
@@ -61,7 +44,7 @@ const CourseDetailsPage = () => {
           md={{ order: 1, size: 7 }}
           className="course-tabs-wrapper"
         >
-          <div class="course-tabs">
+          <div className="course-tabs">
             <CourseTabs active={active} toggleTab={toggleTab} course={course} />
           </div>
         </Col>

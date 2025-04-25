@@ -10,7 +10,6 @@ import makeAnimated from "react-select/animated";
 import { editUserGlobalDataFromSchema } from "../../../../core/validations/edit-user/user-globalData-form.validation";
 
 // ** Utils
-import { isObjEmpty } from "@utils";
 import { dateFormatter } from "../../../../utility/date-formatter.utils";
 import { convertDateToPersian } from "../../../../utility/date-helper.utils";
 import { selectThemeColors } from "../../../../utility/Utils";
@@ -37,35 +36,33 @@ const GlobalData = ({ stepper, user, setGlobalData }) => {
   });
 
   const onSubmit = (e) => {
-    if (isObjEmpty(errors)) {
-      const {
-        fName,
-        lName,
-        nationalCode,
-        gender,
-        userAbout,
-        homeAdderess,
-        birthDay,
-      } = e;
+    const {
+      fName,
+      lName,
+      nationalCode,
+      gender,
+      userAbout,
+      homeAddress,
+      birthDay,
+    } = e;
 
-      let formattedBirthday = null;
+    let formattedBirthday = null;
 
-      if (birthDay instanceof Date && !isNaN(birthDay)) {
-        formattedBirthday = dateFormatter.format(birthDay);
-      }
-
-      setGlobalData({
-        fName,
-        lName,
-        nationalCode,
-        gender,
-        userAbout,
-        homeAdderess,
-        birthDay: formattedBirthday || user.birthDay,
-      });
-
-      stepper.next();
+    if (birthDay instanceof Date && !isNaN(birthDay)) {
+      formattedBirthday = dateFormatter.format(birthDay);
     }
+
+    setGlobalData({
+      fName,
+      lName,
+      nationalCode,
+      gender,
+      userAbout,
+      homeAdderess: homeAddress,
+      birthDay: formattedBirthday || user.birthDay,
+    });
+
+    stepper.next();
   };
 
   const convertDefaultBirthday = convertDateToPersian(user?.birthDay);
@@ -78,7 +75,7 @@ const GlobalData = ({ stepper, user, setGlobalData }) => {
       setValue("gmail", user.gmail);
       setValue("nationalCode", user.nationalCode);
       setValue("gender", user.gender);
-      setValue("homeAdderess", user.homeAdderess);
+      setValue("homeAddress", user.homeAdderess);
       setValue("birthDay", convertDefaultBirthday);
     }
   }, [user, setValue]);
@@ -211,24 +208,24 @@ const GlobalData = ({ stepper, user, setGlobalData }) => {
             )}
           </Col>
           <Col md="6">
-            <Label className="form-label" for="homeAdderess">
+            <Label className="form-label" for="homeAddress">
               آدرس کاربر
             </Label>
             <Controller
               control={control}
-              id="homeAdderess"
-              name="homeAdderess"
+              id="homeAddress"
+              name="homeAddress"
               render={({ field }) => (
                 <Input
                   type="textarea"
-                  id="homeAdderess"
+                  id="homeAddress"
                   invalid={errors.title && true}
                   {...field}
                 />
               )}
             />
-            {errors.homeAdderess && (
-              <FormFeedback>{errors.homeAdderess.message}</FormFeedback>
+            {errors.homeAddress && (
+              <FormFeedback>{errors.homeAddress.message}</FormFeedback>
             )}
           </Col>
         </Row>

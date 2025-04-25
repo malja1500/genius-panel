@@ -26,11 +26,6 @@ import FileUploaderSingle from "../../FileUploaderSingle";
 const GlobalData = ({
   stepper,
   course,
-  title,
-  cost,
-  capacity,
-  sessionNumber,
-  miniDescribe,
   startTime,
   endTime,
   setTitle,
@@ -125,12 +120,6 @@ const GlobalData = ({
       setValue("date", formattedDate);
     }
   }, [course, setValue]);
-
-  useEffect(() => {
-    if (title && cost && capacity && sessionNumber && miniDescribe) {
-      stepper.next();
-    }
-  }, [title, cost, capacity, sessionNumber, miniDescribe, startTime, endTime]);
 
   return (
     <Fragment>

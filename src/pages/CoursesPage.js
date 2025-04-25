@@ -13,9 +13,6 @@ import { useCourseList } from "../core/services/api/course/useCourseList";
 // ** Columns
 import { COURSE_COLUMNS } from "../@core/components/course-columns";
 
-// ** Utils
-import { useHandleDeleteCourse } from "../utility/delete-course.utils";
-
 // ** Custom Components
 import BreadCrumbs from "../@core/components/breadcrumbs";
 import StatsHorizontal from "../@core/components/StatsHorizontal";
@@ -41,25 +38,21 @@ const CoursesPage = () => {
   const [isActiveCourses, setIsActiveCourses] = useState(false);
   const [isDeletedCourses, setIsDeletedCourses] = useState(false);
   const [isOpenCourses, setIsOpenCourses] = useState(false);
-  const [selectedRows, setSelectedRows] = useState();
   const [isDeletingCourses, setIsDeletingCourses] = useState(false);
 
-  const { data: firstData } = useCourseList(1, 10000);
-  const { data } = useCourseList(
+  // ** Hooks
+  const { data: firstData, isLoading: isFirstDataLoading } = useCourseList(
+    1,
+    100000
+  );
+  const { data, isLoading: isDataLoading } = useCourseList(
     undefined,
-    10000,
+    100000,
     sortColumn ? sortColumn : undefined,
     sort ? sort : undefined,
     searchText ? searchText : undefined,
     false
   );
-
-  const handleDeleteCourse = useHandleDeleteCourse();
-
-  const handleDeleteData = () => {
-    handleDeleteCourse(selectedRows);
-    setIsDeletingCourses(false);
-  };
 
   const dataToRender = () => {
     if (isAllCourses) {
@@ -198,7 +191,7 @@ const CoursesPage = () => {
       <Card className="rounded">
         <TableServerSide
           data={dataToRender()}
-          columns={COURSE_COLUMNS("/courses", dataToRender)}
+          columns={COURSE_COLUMNS}
           renderTitle={renderTitle()}
           currentPage={currentPage}
           rowsPerPage={rowsPerPage}
@@ -207,12 +200,12 @@ const CoursesPage = () => {
           setSearchValue={setSearchText}
           setSort={setSort}
           setSortColumn={setSortColumn}
-          setSelectedRows={setSelectedRows}
-          selectableRows
-          handleDeleteData={handleDeleteData}
           isCourseCreateButtonShow
-          notFoundText="دوره ای پیدا نشد !"
-          deleteSelectedRowsText="حذف یا بازگرادنی"
+          loadingNotFoundText={
+            isFirstDataLoading || isDataLoading
+              ? "در حال دریافت دوره ها ..."
+              : "دوره ای پیدا نشد !"
+          }
           isDeletingData={isDeletingCourses}
           setIsDeletingData={setIsDeletingCourses}
         />

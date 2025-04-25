@@ -1,11 +1,10 @@
 // ** React Imports
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 // ** Third Party Components
 import { ArrowLeft, ArrowRight } from "react-feather";
 import { Controller, useForm } from "react-hook-form";
-import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
 import Select from "react-select";
 import makeAnimated from "react-select/animated";
 
@@ -22,8 +21,8 @@ import {
 } from "reactstrap";
 
 // ** Core Imports
-import { addCourseTechnologyAPI } from "../../../../core/services/api/course/add-course-technology.api";
-import { addCourseGroupAPI } from "../../../../core/services/api/course/course-group/add-course-group.api";
+import { useAddCourseGroup } from "../../../../core/services/api/course/course-group/useAddCourseGroup.api";
+import { useAddCourseTechnology } from "../../../../core/services/api/course/useAddCourseTechnology.api";
 
 // ** Util Imports
 import { selectThemeColors } from "../../../../utility/Utils";
@@ -39,11 +38,10 @@ const SelectTechnologiesAndGroup = ({
   courseId,
 }) => {
   // ** States
-  const [isLoading, setLoading] = useState(false);
+  const [isTechnologySuccess, setIsTechnologySuccess] = useState(false);
+  const [isGroupSuccess, setIsGroupSuccess] = useState(false);
 
   // ** Hooks
-  const navigate = useNavigate();
-
   const {
     control,
     handleSubmit,
@@ -51,49 +49,35 @@ const SelectTechnologiesAndGroup = ({
   } = useForm({
     defaultValues,
   });
+  const navigate = useNavigate();
+  const addCourseTechnology = useAddCourseTechnology();
+  const addCourseGroup = useAddCourseGroup();
 
-  const onSubmit = async (e) => {
-    const convertTechnologies = e.technologies.map((technology) => ({
+  const onSubmit = (e) => {
+    const { technologies, groupName, groupCapacity } = e;
+
+    const convertTechnologies = technologies.map((technology) => ({
       techId: technology.id,
     }));
+    addCourseTechnology.mutate(
+      { courseId, technologies: convertTechnologies },
+      { onSuccess: () => setIsTechnologySuccess(true) }
+    );
 
-    try {
-      setLoading(true);
-
-      const addTechnology = await addCourseTechnologyAPI(
-        courseId,
-        convertTechnologies
-      );
-
-      const { groupName, groupCapacity } = e;
-
-      const courseGroupData = {
-        groupName,
-        groupCapacity,
-        courseId,
-      };
-
-      const courseGroupFormData = onFormData(courseGroupData);
-
-      const addCourseGroup = await addCourseGroupAPI(courseGroupFormData);
-
-      if (addTechnology.success) {
-        toast.success("تکنولوژی های این دوره با موفقیت اضافه شد !");
-      } else toast.error("مشکلی در افزودن تکنولوژی ها به وجود آمد !");
-
-      if (addCourseGroup.success) {
-        toast.success("گروه این دوره با موفقیت اضافه شد !");
-      } else toast.error("مشکلی در افزودن گروه به وجود آمد !");
-
-      if (addTechnology.success && addCourseGroup.success) navigate("/courses");
-    } catch (error) {
-      setLoading(false);
-
-      toast.error("مشکلی در افزودن تکنولوژی ها به وجود آمد !");
-    } finally {
-      setLoading(false);
-    }
+    const courseGroupData = {
+      groupName,
+      groupCapacity,
+      courseId,
+    };
+    const courseGroupFormData = onFormData(courseGroupData);
+    addCourseGroup.mutate(courseGroupFormData, {
+      onSuccess: () => setIsGroupSuccess(true),
+    });
   };
+
+  useEffect(() => {
+    if (isTechnologySuccess && isGroupSuccess) navigate("/courses");
+  }, [isTechnologySuccess, isGroupSuccess]);
 
   const animatedComponents = makeAnimated();
 
@@ -188,9 +172,11 @@ const SelectTechnologiesAndGroup = ({
             type="submit"
             color="primary"
             className="btn-next d-flex align-items-center submit-button"
-            disabled={isLoading}
+            disabled={addCourseTechnology.isPending && addCourseGroup.isPending}
           >
-            {isLoading && <Spinner size="sm" className="loading-spinner" />}
+            {addCourseTechnology.isPending && addCourseGroup.isPending && (
+              <Spinner size="sm" className="loading-spinner" />
+            )}
             <span className="align-middle d-sm-inline-block d-none">ثبت</span>
             <ArrowRight
               size={14}

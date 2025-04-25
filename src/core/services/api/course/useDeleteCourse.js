@@ -1,9 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import {
-  showErrorToast,
-  showSuccessToast,
-} from "../../../../utility/toast.utils";
 import http from "../../interceptor";
 
 export const useDeleteCourse = () => {
@@ -20,11 +16,7 @@ export const useDeleteCourse = () => {
           },
         })
         .then((res) => res.data),
-    onSuccess: (data, deletedData) => {
-      showSuccessToast(
-        `دوره با موفقیت ${deletedData.active ? "بازگردانی" : "حذف"} شد !`
-      );
-
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["courseList"],
       });
@@ -32,7 +24,5 @@ export const useDeleteCourse = () => {
         queryKey: ["teacherCourseList"],
       });
     },
-    onError: () =>
-      showErrorToast("مشکلی در حذف یا بازگردانی دوره به وجود آمد !"),
   });
 };

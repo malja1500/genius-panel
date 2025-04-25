@@ -1,6 +1,5 @@
 // ** React Imports
-import { useEffect, useRef, useState } from "react";
-import toast from "react-hot-toast";
+import { useRef, useState } from "react";
 
 // ** Custom Components
 import BreadCrumbs from "@components/breadcrumbs";
@@ -14,8 +13,8 @@ import GlobalData from "../@core/components/create-course/steps/GlobalData";
 import SelectTechnologiesAndGroup from "../@core/components/create-course/steps/SelectTechnologiesAndGroup";
 
 // ** Core Imports
-import { createCourseAPI } from "../core/services/api/course/create-course.api";
-import { getCreateCourseAPI } from "../core/services/api/course/get-create-course.api";
+import { useCreateCourse } from "../core/services/api/course/useCreateCourse.api";
+import { useGetCreateCourse } from "../core/services/api/course/useGetCreateCourse.api";
 
 // ** Utils
 import { onFormData } from "../utility/form-data-helper.utils";
@@ -45,10 +44,12 @@ const CreateCoursePage = () => {
   const [uniqueUrlString, setUniqueUrlString] = useState();
   const [shortLink, setShortLink] = useState();
   const [courseId, setCourseId] = useState();
-  const [createCourseOptions, setCreateCourseOptions] = useState();
-  const [isLoading, setLoading] = useState(false);
 
-  const onSubmit = async () => {
+  // ** Hooks
+  const { data: createCourseOptions } = useGetCreateCourse();
+  const createCourse = useCreateCourse();
+
+  const onSubmit = () => {
     const courseData = {
       image: files[0],
       tumbImage: files[0],
@@ -72,24 +73,13 @@ const CreateCoursePage = () => {
       shortLink,
     };
 
-    try {
-      setLoading(true);
-
-      const formData = onFormData(courseData);
-      const createCourse = await createCourseAPI(formData);
-
-      if (createCourse.success) {
-        toast.success("دوره با موفقیت ثبت شد !");
-        setCourseId(createCourse.id);
+    const formData = onFormData(courseData);
+    createCourse.mutate(formData, {
+      onSuccess: (data) => {
+        setCourseId(data.id);
         stepper.next();
-      }
-    } catch (error) {
-      setLoading(false);
-
-      toast.error("مشکلی در ارسال دوره به وجود آمد !");
-    } finally {
-      setLoading(false);
-    }
+      },
+    });
   };
 
   const steps = [
@@ -101,10 +91,6 @@ const CreateCoursePage = () => {
         <GlobalData
           stepper={stepper}
           title={title}
-          cost={cost}
-          capacity={capacity}
-          sessionNumber={sessionNumber}
-          miniDescribe={miniDescribe}
           startTime={startTime}
           endTime={endTime}
           setTitle={setTitle}
@@ -159,7 +145,7 @@ const CreateCoursePage = () => {
           teacherIdState={teacherIdState}
           classIdState={classIdState}
           termIdState={termIdState}
-          isLoading={isLoading}
+          isPending={createCourse.isPending}
           setCourseLvlId={setCourseLvlId}
           setCourseTypeIdState={setCourseTypeIdState}
           setTeacherIdState={setTeacherIdState}
@@ -182,20 +168,6 @@ const CreateCoursePage = () => {
       ),
     },
   ];
-
-  useEffect(() => {
-    const getCreateCourse = async () => {
-      try {
-        const response = await getCreateCourseAPI();
-
-        setCreateCourseOptions(response);
-      } catch (error) {
-        toast.error("مشکلی در دریافت داده ها به وجود آمد !");
-      }
-    };
-
-    getCreateCourse();
-  }, []);
 
   return (
     <div className="horizontal-wizard">

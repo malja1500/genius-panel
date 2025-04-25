@@ -1,6 +1,5 @@
 // ** React Imports
 import { Fragment, useEffect, useState } from "react";
-import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 
 // ** Reactstrap Imports
@@ -11,17 +10,19 @@ import { Briefcase, Check } from "react-feather";
 
 // ** Custom Components
 import Avatar from "@components/avatar";
+import BadgeListItem from "../BadgeListItem";
 
 // ** Core Imports
-import { getCourseGroupAPI } from "../../../core/services/api/course/course-group/get-course-group.api";
+// import { useCourseGroup } from "../../../core/services/api/course/course-group/useCourseGroup.api";
+import { useCourseGroup} from '../../../core/services/api/course/course-group/useCourseGroup.api'
 
-// ** Utils
+// ** Utility
+import { useHandleActiveInactiveCourse } from "../../../utility/active-inactive-course.utils";
+import { useHandleDeleteCourse } from "../../../utility/useDeleteCourseAlert";
 import { persianNumberFormatter } from "../../../utility/persian-number-formatter-helper";
 
 // ** Styles
 import "@styles/react/libs/react-select/_react-select.scss";
-import { useHandleDeleteCourse } from "../../../utility/delete-course-alert.utils";
-import { useHandleActiveInactiveCourse } from "../../../utility/active-inactive-course.utils";
 
 const levelColors = {
   "فوق پیشرفته": "light-success",
@@ -37,13 +38,27 @@ const statusColors = {
 
 const CourseInfoCard = ({ course }) => {
   // ** States
-  const [courseGroup, setCourseGroup] = useState();
   const [isDeleted, setIsDeleted] = useState(false);
+  const [courseGroup, setCourseGroup] = useState();
 
   // ** Hooks
   const handleActiveInactiveCourse = useHandleActiveInactiveCourse();
-
   const handleDeleteCourse = useHandleDeleteCourse();
+  const { fetchCourseGroup } = useCourseGroup(undefined, undefined, false);
+
+  useEffect(() => {
+    const fetchCourseGroupFn = async () => {
+      if (course) {
+        const getCourseGroup = await fetchCourseGroup(
+          course.teacherId,
+          course.courseId
+        );
+
+        setCourseGroup(getCourseGroup);
+      }
+    };
+    fetchCourseGroupFn();
+  }, [course]);
 
   // ** Render course img
   const renderCourseImg = () => {
@@ -81,25 +96,6 @@ const CourseInfoCard = ({ course }) => {
 
   const formattedCoursePrice = () => persianNumberFormatter(course?.cost);
 
-  useEffect(() => {
-    if (course) {
-      const fetchCourseGroup = async () => {
-        try {
-          const getCourseGroup = await getCourseGroupAPI(
-            course?.teacherId,
-            course?.courseId
-          );
-
-          setCourseGroup(getCourseGroup[0]);
-        } catch (error) {
-          toast.error("مشکلی در دریافت گروه دوره به وجود آمد.");
-        }
-      };
-
-      fetchCourseGroup();
-    }
-  }, [course]);
-
   return (
     <Fragment>
       <Card className="course-info-card">
@@ -129,8 +125,8 @@ const CourseInfoCard = ({ course }) => {
                 <Briefcase className="font-medium-2" />
               </Badge>
               <div className="ms-75">
-                <h4 className="mb-0">{courseGroup?.groupName}</h4>
-                <small>نام گروه</small>
+                <h4 className="mb-0">{course?.courseTypeName}</h4>
+                <small>نوع دوره</small>
               </div>
             </div>
           </div>
@@ -173,17 +169,27 @@ const CourseInfoCard = ({ course }) => {
                   <span>{course?.courseClassRoomName}</span>
                 </li>
                 {course && course.courseTeches.length > 0 && (
-                  <li className="mb-75 d-flex">
-                    <span className="fw-bolder me-25">تکنولوژی های دوره :</span>
-                    <div className="d-flex flex-wrap course-details-technologies-wrapper">
-                      {course &&
-                        course?.courseTeches.map((tech) => (
-                          <Badge key={course.courseId} color="light-primary">
-                            {tech}
-                          </Badge>
-                        ))}
-                    </div>
-                  </li>
+                  <BadgeListItem listTitle="تکنولوژی های دوره :">
+                    {course &&
+                      course?.courseTeches.map((tech) => (
+                        <Badge key={course.courseId} color="light-primary">
+                          {tech}
+                        </Badge>
+                      ))}
+                  </BadgeListItem>
+                )}
+                {courseGroup && (
+                  <BadgeListItem
+                    listTitle={` نام ${
+                      courseGroup.length <= 1 ? "گروه" : "گروه ها"
+                    }:`}
+                  >
+                    {courseGroup.map((courseGroup) => (
+                      <Badge key={courseGroup.groupId} color="light-primary">
+                        {courseGroup.groupName}
+                      </Badge>
+                    ))}
+                  </BadgeListItem>
                 )}
               </ul>
             ) : null}

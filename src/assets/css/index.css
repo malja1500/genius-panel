@@ -1,3 +1,21 @@
+/* Scroll bar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(123, 123, 123, 0.249);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(66, 66, 66, 0.718);
+}
+
 .coursesRowsPerPageSelectBox {
   line-height: 1.5rem;
 }
@@ -301,7 +319,7 @@ body.dark-layout
   margin-top: 2px;
 }
 
-.course-details-technologies-wrapper {
+.course-details-badge-list-item-mapped-wrapper {
   gap: 7px;
 }
 
@@ -315,6 +333,172 @@ body.dark-layout
 
 .dashboard-card-medal-congratulations-text {
   width: 180px;
+}
+
+.user-comments-sort-accepted-row {
+  margin-bottom: 30px;
+}
+
+.user-comments-sort-accepted-select-box {
+  width: 100px !important;
+  margin: 0;
+  margin-top: 2px;
+}
+
+.user-comments-sort-accepted-wrapper {
+  margin-left: 15px;
+}
+
+body.dark-layout .swal2-popup {
+  background-color: #283046;
+}
+
+body.dark-layout .swal2-html-container#swal2-html-container {
+  color: #d0d2d6;
+}
+
+body.dark-layout .rmdp-wrapper.rmdp-shadow {
+  background: #283046;
+}
+
+body.dark-layout .rmdp-shadow {
+  box-shadow: 0 0 5px #92929257;
+}
+body.dark-layout .rmdp-day,
+body.dark-layout .rmdp-header-values {
+  color: #fff;
+}
+
+body.dark-layout .rmdp-ep-arrow:after {
+  background-color: #283046;
+  border-color: #283046 !important;
+}
+
+body.dark-layout .rmdp-ep-arrow[direction="bottom"] {
+  border-color: #283046 !important;
+}
+
+body.dark-layout .rmdp-ep-shadow:after {
+  box-shadow: 0 0 6px #8798ad63;
+}
+
+.loading-empty-course-reserve-modal-text {
+  margin: 4px 0;
+}
+
+.dataTableCard {
+  margin-bottom: 19px;
+}
+
+/* Editor JS */
+.cdx-search-field__input {
+  margin-top: 3.8px;
+}
+
+body.dark-layout
+  #course-describe
+  .codex-editor
+  .ce-toolbar
+  .ce-toolbar__content
+  .ce-toolbar__plus,
+body.dark-layout .ce-toolbar__settings-btn,
+body.dark-layout .codex-editor .ce-toolbox .ce-popover__items .ce-popover-item,
+body.dark-layout .cdx-search-field__input,
+body.dark-layout
+  .codex-editor
+  .ce-toolbar__actions
+  .ce-toolbox
+  .ce-popover__nothing-found-message.ce-popover__nothing-found-message--displayed,
+body.dark-layout
+  .ce-popover__nothing-found-message.ce-popover__nothing-found-message--displayed,
+body.dark-layout .ce-popover-item__title,
+.ce-popover-item__icon,
+body.dark-layout .cdx-button {
+  color: #d0d2d6 !important;
+}
+
+body.dark-layout .ce-toolbar__plus:hover,
+.ce-toolbar__settings-btn:hover,
+body.dark-layout .ce-inline-tool:hover,
+.ce-inline-toolbar__dropdown:hover,
+.ce-block--selected .ce-block__content,
+body.dark-layout .cdx-settings-button:hover {
+  background-color: #00000061;
+}
+
+body.dark-layout .ce-toolbox .ce-popover.ce-popover--opened,
+body.dark-layout .image-tool__imagme,
+body.dark-layout
+  .codex-editor.codex-editor--narrow.codex-editor--empty
+  .table-cell-container
+  .table-cell {
+  background: #283046 !important;
+}
+
+.codex-editor .ce-toolbox .ce-popover__items .ce-popover-item,
+.ce-popover-item {
+  gap: 10px;
+}
+
+body.dark-layout .ce-popover-item:hover:not(.ce-popover-item--no-hover) {
+  background-color: #00000061;
+}
+
+body.dark-layout .cdx-search-field {
+  background: transparent;
+  align-items: center;
+}
+
+body.dark-layout .ce-popover-item__icon {
+  background: transparent;
+}
+
+body.dark-layout .ce-popover-item:hover .ce-popover-item__icon,
+body.dark-layout
+  .cdx-notifies
+  .cdx-notify.cdx-notify--error.cdx-notify--bounce-in,
+body.dark-layout .cdx-button,
+body.dark-layout .image-tool__image {
+  background: #283046 !important;
+}
+
+body.dark-layout .ce-popover.ce-popover--opened {
+  background: transparent;
+}
+
+body.dark-layout
+  .ce-popover__nothing-found-message.ce-popover__nothing-found-message--displayed {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+body.dark-layout .ce-popover.ce-popover--opened,
+body.dark-layout .ce-inline-toolbar,
+body.dark-layout .link-tool__input-holder--error .link-tool__input,
+body.dark-layout .image-tool__image,
+body.dark-layout
+  .codex-editor.codex-editor--narrow.codex-editor--empty
+  .table-cell-container
+  .table-cell,
+body.dark-layout .tc-table__wrap {
+  border: 1px solid #f7f1f14d;
+}
+
+body.dark-layout .ce-inline-toolbar {
+  background-color: transparent;
+}
+
+body.dark-layout .link-tool__input-holder--error .link-tool__input {
+  background-color: transparent;
+}
+
+.cdx-checklist__item {
+  gap: 10px;
+}
+
+body.dark-layout .cdx-settings-button {
+  fill: #d0d2d6;
 }
 
 /* Responsive */

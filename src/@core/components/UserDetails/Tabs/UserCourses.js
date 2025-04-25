@@ -150,12 +150,18 @@ const UserCourses = ({ userCourses }) => {
             <DataTable
               noHeader
               pagination
+              paginationServer
               data={searchValue.length ? filteredData : currentItems}
               columns={USER_FAVORITE_COURSES_COLUMNS}
               className="react-dataTable"
               sortIcon={<ChevronDown size={10} />}
               paginationComponent={CustomPagination}
               paginationDefaultPage={currentPage + 1}
+              noDataComponent={
+                <span className="my-2">
+                  دوره ی تایید شده ای برای این کاربر پیدا نشد !
+                </span>
+              }
             />
           </>
         )}

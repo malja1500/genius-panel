@@ -1,6 +1,5 @@
 // ** React Imports
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
 
 // ** Reactstrap Imports
 import { Card, Col, Row } from "reactstrap";
@@ -9,7 +8,7 @@ import { Card, Col, Row } from "reactstrap";
 import { Book, CheckCircle, Trash2 } from "react-feather";
 
 // ** Core Imports
-import { getCourseReserveAPI } from "../core/services/api/course/course-reserve/get-course-reserve.api";
+import { useCourseReserve } from "../core/services/api/course/course-reserve/useCourseReserve.api";
 
 // ** Columns
 import { COURSE_RESERVED_PAGE_COLUMNS } from "../@core/components/course-columns/course-reserved-page-columns";
@@ -36,7 +35,12 @@ const CourseReservedPage = () => {
   const [isNotAcceptedReserves, setIsNotAcceptedReserves] = useState(false);
   const [filteredData, setFilteredData] = useState([]);
 
+  // ** Hooks
+  const { data: courseReserve, isLoading: isCourseReserveLoading } =
+    useCourseReserve();
+
   const dataToRender = () => {
+    console.log(allReserves);
     if (isAllReserves) {
       return allReserves;
     } else if (acceptReserves) {
@@ -63,11 +67,12 @@ const CourseReservedPage = () => {
     setSearchText(value);
 
     if (value.length) {
+      setCurrentPage(1);
       updatedData = allReserves.filter((reserve) => {
         if (reserve.studentName === null) return null;
-        const startsWith = reserve?.studentName.startsWith(value.toLowerCase());
+        const startsWith = reserve?.studentName.startsWith(value);
 
-        const includes = reserve?.studentName.includes(value.toLowerCase());
+        const includes = reserve?.studentName.includes(value);
 
         if (startsWith) {
           return startsWith;
@@ -82,25 +87,20 @@ const CourseReservedPage = () => {
 
   useEffect(() => {
     const fetchCourses = async () => {
-      try {
-        const getCourseReserves = await getCourseReserveAPI();
-        const getAcceptedReserves = getCourseReserves.filter((course) => {
-          return course.accept === true;
-        });
-        const getNotAcceptedReserves = getCourseReserves.filter((course) => {
-          return course.accept === false;
-        });
+      const getAcceptedReserves = courseReserve?.filter((course) => {
+        return course.accept === true;
+      });
+      const getNotAcceptedReserves = courseReserve?.filter((course) => {
+        return course.accept === false;
+      });
 
-        setAllReserves(getCourseReserves);
-        setAcceptedReserves(getAcceptedReserves);
-        setNotAcceptedReserves(getNotAcceptedReserves);
-      } catch (error) {
-        toast.error("مشکلی در دریافت رزرو ها به وجود آمد !");
-      }
+      setAllReserves(courseReserve);
+      setAcceptedReserves(getAcceptedReserves);
+      setNotAcceptedReserves(getNotAcceptedReserves);
     };
 
     fetchCourses();
-  }, []);
+  }, [courseReserve]);
 
   return (
     <div className="invoice-list-wrapper">
@@ -180,7 +180,11 @@ const CourseReservedPage = () => {
           setCurrentPage={setCurrentPage}
           setRowsPerPage={setRowsPerPage}
           setSearchValue={setSearchText}
-          notFoundText="رزروی پیدا نشد !"
+          loadingNotFoundText={
+            isCourseReserveLoading
+              ? "در حال دریافت رزرو ها ..."
+              : "رزروی پیدا نشد !"
+          }
           handleSearchFilter={handleFilter}
         />
       </Card>

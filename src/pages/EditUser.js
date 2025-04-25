@@ -1,7 +1,6 @@
 // ** React Imports
-import { useEffect, useRef, useState } from "react";
-import toast from "react-hot-toast";
-import { useNavigate, useParams } from "react-router-dom";
+import { useRef, useState } from "react";
+import { useParams } from "react-router-dom";
 
 // ** Custom Components
 import BreadCrumbs from "@components/breadcrumbs";
@@ -12,50 +11,31 @@ import GlobalData from "../@core/components/EditUser/steps/GlobalData";
 import UserConnection from "../@core/components/EditUser/steps/UserConnection";
 
 // ** Core Imports
-import { getUserWithIdAPI } from "../core/services/api/user/useUserWithId";
-import { updateUserAPI } from "../core/services/api/user/update-user.api";
+import { useUpdateUser } from "../core/services/api/user/useUpdateUser.api";
+import { useUserWithId } from "../core/services/api/user/useUserWithId";
 
 const EditUserPage = () => {
   // ** Ref
   const ref = useRef(null);
 
   // ** States
-  const [userDetails, setUserDetails] = useState();
   const [stepper, setStepper] = useState(null);
   const [globalData, setGlobalData] = useState();
   const [userConnection, setUserConnection] = useState(null);
-  const [isLoading, setLoading] = useState(false);
 
   // ** Hooks
   const { id } = useParams();
-  const navigate = useNavigate();
+  const { data: userDetails } = useUserWithId(id);
+  const updateUser = useUpdateUser();
 
-  const handleSubmitFn = async () => {
-    try {
-      setLoading(true);
+  const handleSubmitFn = () => {
+    const userData = {
+      id,
+      ...globalData,
+      ...userConnection,
+    };
 
-      const userData = {
-        id,
-        ...globalData,
-        ...userConnection,
-      };
-
-      const editUser = await updateUserAPI(userData);
-
-      if (editUser.success) {
-        toast.success("کاربر با موفقیت ویرایش شد !");
-
-        navigate("users");
-      } else {
-        toast.error("مشکلی در ویرایش کاربر به وجود آمد !");
-      }
-    } catch (error) {
-      setLoading(false);
-
-      toast.error("مشکلی در ویرایش کاربر به وجود آمد !");
-    } finally {
-      setLoading(false);
-    }
+    updateUser.mutate(userData);
   };
 
   const steps = [
@@ -79,7 +59,7 @@ const EditUserPage = () => {
         <UserConnection
           stepper={stepper}
           user={userDetails}
-          isLoading={isLoading}
+          isLoading={updateUser.isPending}
           userConnection={userConnection}
           setUserConnection={setUserConnection}
           handleSubmitFn={handleSubmitFn}
@@ -87,20 +67,6 @@ const EditUserPage = () => {
       ),
     },
   ];
-
-  useEffect(() => {
-    const fetchUserDetails = async () => {
-      try {
-        const getUserDetails = await getUserWithIdAPI(id);
-
-        setUserDetails(getUserDetails);
-      } catch (error) {
-        toast.error("مشکلی در دریافت اطلاعات کاربر به وجود آمد !");
-      }
-    };
-
-    fetchUserDetails();
-  }, []);
 
   return (
     <div className="horizontal-wizard">
@@ -116,7 +82,12 @@ const EditUserPage = () => {
           { title: "ویرایش کاربر" },
         ]}
       />
-      <Wizard instance={(el) => setStepper(el)} ref={ref} steps={steps} />
+      <Wizard
+        instance={(el) => setStepper(el)}
+        ref={ref}
+        steps={steps}
+        options={{ linear: false }}
+      />
     </div>
   );
 };

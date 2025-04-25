@@ -1,6 +1,5 @@
 // ** React Imports
-import { useEffect, useRef, useState } from "react";
-import toast from "react-hot-toast";
+import { useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 // ** Custom Components
@@ -14,8 +13,8 @@ import CourseFeatures from "../@core/components/create-course/steps/CourseFeatur
 import GlobalData from "../@core/components/create-course/steps/GlobalData";
 
 // ** Core Imports
-import { getEditCourseAPI } from "../core/services/api/course/get-edit-course.api";
-import { updateCourseAPI } from "../core/services/api/course/update-course.api";
+import { useGetEditCourse } from "../core/services/api/course/useGetEditCourse.api";
+import { useUpdateCourse } from "../core/services/api/course/useUpdateCourse.api";
 
 // ** Utils
 import { onFormData } from "../utility/form-data-helper.utils";
@@ -26,7 +25,6 @@ const EditCourse = () => {
 
   // ** State
   const [stepper, setStepper] = useState(null);
-  const [courseData, setCourseData] = useState();
   const [files, setFiles] = useState([]);
   const [title, setTitle] = useState();
   const [cost, setCost] = useState();
@@ -45,13 +43,14 @@ const EditCourse = () => {
   const [googleSchema, setGoogleSchema] = useState();
   const [uniqueUrlString, setUniqueUrlString] = useState();
   const [shortLink, setShortLink] = useState();
-  const [isLoading, setLoading] = useState(false);
 
   //  ** Hooks
   const { id } = useParams();
   const navigate = useNavigate();
+  const { data: courseData } = useGetEditCourse(id);
+  const updateCourse = useUpdateCourse();
 
-  const onSubmit = async () => {
+  const onSubmit = () => {
     const courseDataObj = {
       id,
       image: (files && files[0]) || courseData.imageAddress,
@@ -76,24 +75,8 @@ const EditCourse = () => {
       shortLink,
     };
 
-    try {
-      setLoading(true);
-
-      const formData = onFormData(courseDataObj);
-      const createCourse = await updateCourseAPI(formData);
-
-      if (createCourse.success) {
-        toast.success("دوره با موفقیت آپدیت شد !");
-
-        navigate("/courses");
-      } else toast.error(createCourse.message);
-    } catch (error) {
-      setLoading(false);
-
-      toast.error("مشکلی در ارسال دوره به وجود آمد !");
-    } finally {
-      setLoading(false);
-    }
+    const formData = onFormData(courseDataObj);
+    updateCourse.mutate(formData, { onSuccess: () => navigate("/courses") });
   };
 
   const steps = [
@@ -166,7 +149,7 @@ const EditCourse = () => {
           teacherIdState={teacherIdState}
           classIdState={classIdState}
           termIdState={termIdState}
-          isLoading={isLoading}
+          isPending={updateCourse.isPending}
           setCourseLvlId={setCourseLvlId}
           setCourseTypeIdState={setCourseTypeIdState}
           setTeacherIdState={setTeacherIdState}
@@ -176,20 +159,6 @@ const EditCourse = () => {
       ),
     },
   ];
-
-  useEffect(() => {
-    const getEditCourse = async () => {
-      try {
-        const response = await getEditCourseAPI(id);
-
-        setCourseData(response);
-      } catch (error) {
-        toast.error("مشکلی در دریافت داده ها به وجود آمد !");
-      }
-    };
-
-    getEditCourse();
-  }, []);
 
   return (
     <div className="horizontal-wizard">

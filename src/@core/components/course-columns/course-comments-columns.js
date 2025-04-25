@@ -1,9 +1,5 @@
 // ** React Imports
 import { useState } from "react";
-import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
-import withReactContent from "sweetalert2-react-content";
 
 // ** Reactstrap Imports
 import { Badge, Button } from "reactstrap";
@@ -15,9 +11,11 @@ import { CheckCircle, Trash, XCircle } from "react-feather";
 import CourseReplyCommentModal from "./CourseReplyCommentModal";
 
 // ** Core Imports
-import { acceptCourseCommentAPI } from "../../../core/services/api/course/course-comments/accept-course-comment.api";
-import { deleteCourseCommentAPI } from "../../../core/services/api/course/course-comments/delete-course-comment.api";
-import { rejectCourseCommentAPI } from "../../../core/services/api/course/course-comments/reject-course-comment.api";
+import { useAcceptCourseComment } from "../../../core/services/api/course/course-comments/useAcceptCourseComment.api";
+import { useRejectCourseComment } from "../../../core/services/api/course/course-comments/useRejectCourseComment.api";
+
+// ** Utility
+import { useHandleDeleteCourseComment } from "../../../utility/handle-delete-course-comment.utils";
 
 // ** Image Imports
 import blankThumbnail from "../../../assets/images/common/blank-thumbnail.jpg";
@@ -86,7 +84,9 @@ export const COURSE_COMMENTS_COLUMNS = [
       const [modal, setModal] = useState(null);
 
       // ** Hooks
-      const navigate = useNavigate();
+      const acceptCourseComment = useAcceptCourseComment(row.id);
+      const rejectCourseComment = useRejectCourseComment(row.id);
+      const deleteCourseComment = useHandleDeleteCourseComment();
 
       const toggleModal = (id) => {
         if (modal !== id) {
@@ -96,71 +96,20 @@ export const COURSE_COMMENTS_COLUMNS = [
         }
       };
 
-      const MySwal = withReactContent(Swal);
-
       const handleReplyClick = () => {
         toggleModal(row.courseId);
       };
 
       const handleAcceptCourseComment = async () => {
-        try {
-          const acceptCourseComment = await acceptCourseCommentAPI(row.id);
-
-          if (acceptCourseComment.success) {
-            toast.success("نظر با موفقیت تایید شد !");
-
-            navigate(`/courses/${row.courseId}`);
-          } else {
-            toast.error("مشکلی در تایید نظر به وجود آمد !");
-          }
-        } catch (error) {
-          toast.error("مشکلی در تایید نظر به وجود آمد !");
-        }
+        acceptCourseComment.mutate();
       };
 
       const handleRejectCourseComment = async () => {
-        try {
-          const rejectCourseComment = await rejectCourseCommentAPI(row.id);
-
-          if (rejectCourseComment.success) {
-            toast.success("نظر با موفقیت لغو شد !");
-
-            navigate(`/courses/${row.courseId}`);
-          } else {
-            toast.error("مشکلی در لغو نظر از دید کاربران به وجود آمد !");
-          }
-        } catch (error) {
-          toast.error("مشکلی در لغو نظر از دید کاربران به وجود آمد !");
-        }
+        rejectCourseComment.mutate();
       };
 
-      const handleDeleteCourseComment = async () => {
-        MySwal.fire({
-          title: "آیا از حذف این نظر مطمئن هستید؟",
-          text: "در صورت حذف نظر، نظر به طور کامل حذف خواهد شد.",
-          icon: "warning",
-          customClass: {
-            confirmButton: "btn btn-primary",
-            cancelButton: "btn btn-danger ms-1",
-          },
-          buttonsStyling: false,
-          inputAttributes: {
-            autocapitalize: "off",
-          },
-          showCancelButton: true,
-          confirmButtonText: "حذف",
-          cancelButtonText: "انصراف",
-          showLoaderOnConfirm: true,
-          async preConfirm() {
-            const deleteCourseComment = await deleteCourseCommentAPI(row.id);
-
-            if (deleteCourseComment.success) {
-              toast.success("نظر با موفقیت حذف شد !");
-
-              navigate(`/courses/${row.courseId}`);
-            }
-          },
-        });
+      const handleDeleteCourseComment = () => {
+        deleteCourseComment(row.id);
       };
 
       return (

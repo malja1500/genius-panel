@@ -1,14 +1,12 @@
 // ** React Imports
 import { Link } from "react-router-dom";
+import { Badge } from "reactstrap";
 
 // ** Core Imports
+import { useUserWithId } from "../../../../core/services/api/user/useUserWithId";
 
 // ** Image Imports
 import blankThumbnail from "../../../../assets/images/common/blank-thumbnail.jpg";
-import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import { getUserWithIdAPI } from "../../../../core/services/api/user/useUserWithId";
-import { Badge } from "reactstrap";
 
 export const COURSE_USER_LIST_COLUMNS = [
   {
@@ -16,22 +14,8 @@ export const COURSE_USER_LIST_COLUMNS = [
     reorder: true,
     width: "240px",
     cell: (row) => {
-      // ** States
-      const [user, setUser] = useState();
-
-      useEffect(() => {
-        const fetchUser = async () => {
-          try {
-            const getUser = await getUserWithIdAPI(row.studentId);
-
-            setUser(getUser);
-          } catch (error) {
-            toast.error("مشکلی در دریافت کاربر به وجود آمد !");
-          }
-        };
-
-        fetchUser();
-      }, []);
+      // ** Hooks
+      const { data: user } = useUserWithId(row.studentId);
 
       return (
         <Link

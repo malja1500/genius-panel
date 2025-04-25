@@ -5,15 +5,16 @@ import { Fragment, useEffect } from "react";
 import { isObjEmpty } from "@utils";
 
 // ** Third Party Components
-import { useForm, Controller } from "react-hook-form";
-import { ArrowLeft, ArrowRight } from "react-feather";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { ArrowLeft, ArrowRight } from "react-feather";
+import { Controller, useForm } from "react-hook-form";
 
 // ** Reactstrap Imports
-import { Form, Label, Input, Row, Col, Button, FormFeedback } from "reactstrap";
+import { Button, Col, Form, FormFeedback, Input, Label, Row } from "reactstrap";
 
 // Validation Import
 import { createCourseStepTwoFormSchema } from "../../../../core/validations/create-course/create-course-step-two-form.validation";
+import { editCourseStepTwoFormSchema } from "../../../../core/validations/edit-course/edit-course-step-two-form.validation";
 
 const defaultValues = {
   googleTitle: "",
@@ -38,7 +39,9 @@ const AdvanceData = ({
     setValue,
   } = useForm({
     defaultValues,
-    resolver: yupResolver(createCourseStepTwoFormSchema),
+    resolver: yupResolver(
+      course ? editCourseStepTwoFormSchema : createCourseStepTwoFormSchema
+    ),
   });
 
   const onSubmit = (e) => {

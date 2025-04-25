@@ -1,6 +1,5 @@
 // ** React Imports
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 // ** Reactstrap Imports
 import { Card, Col, Row } from "reactstrap";
@@ -13,9 +12,6 @@ import { COURSE_COLUMNS } from "../@core/components/course-columns";
 
 // ** Core Imports
 import { useCourseList } from "../core/services/api/course/useCourseList";
-
-// ** Utils
-import { useHandleDeleteCourse } from "../utility/delete-course.utils";
 
 // ** Custom Components
 import BreadCrumbs from "../@core/components/breadcrumbs";
@@ -42,20 +38,10 @@ const MyCoursesPages = () => {
   const [isActiveCourses, setIsActiveCourses] = useState(false);
   const [isDeletedCourses, setIsDeletedCourses] = useState(false);
   const [isOpenCourses, setIsOpenCourses] = useState(false);
-  const [selectedRows, setSelectedRows] = useState();
   const [isDeletingCourses, setIsDeletingCourses] = useState(false);
 
   // ** Hooks
-  const navigate = useNavigate();
-
-  const handleDeleteCourse = useHandleDeleteCourse();
-
-  const handleDeleteData = () => {
-    handleDeleteCourse(selectedRows, navigate, "/my-courses");
-    setIsDeletingCourses(false);
-  };
-
-  const { data: firstData } = useCourseList(
+  const { data: firstData, isLoading: isFirstDataLoading } = useCourseList(
     1,
     10000,
     undefined,
@@ -63,7 +49,7 @@ const MyCoursesPages = () => {
     undefined,
     true
   );
-  const { data } = useCourseList(
+  const { data, isLoading: isDataLoading } = useCourseList(
     undefined,
     10000,
     sortColumn ? sortColumn : undefined,
@@ -206,7 +192,7 @@ const MyCoursesPages = () => {
       <Card className="rounded">
         <TableServerSide
           data={dataToRender()}
-          columns={COURSE_COLUMNS()}
+          columns={COURSE_COLUMNS}
           renderTitle={renderTitle()}
           currentPage={currentPage}
           rowsPerPage={rowsPerPage}
@@ -215,11 +201,12 @@ const MyCoursesPages = () => {
           setSearchValue={setSearchText}
           setSort={setSort}
           setSortColumn={setSortColumn}
-          setSelectedRows={setSelectedRows}
-          selectableRows
-          handleDeleteData={handleDeleteData}
           isCourseCreateButtonShow
-          notFoundText="دوره ای پیدا نشد !"
+          loadingNotFoundText={
+            isFirstDataLoading || isDataLoading
+              ? "در حال دریافت دوره ها ..."
+              : "دوره ای پیدا نشد !"
+          }
           deleteSelectedRowsText="حذف یا بازگرادنی"
           isDeletingData={isDeletingCourses}
           setIsDeletingData={setIsDeletingCourses}

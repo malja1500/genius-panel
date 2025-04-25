@@ -25,7 +25,7 @@ const CourseTabs = ({ active, toggleTab, course }) => {
         <NavItem>
           <NavLink active={active === "2"} onClick={() => toggleTab("2")}>
             <Bookmark className="font-medium-3 me-50" />
-            <span className="fw-bold">رزور کنندگان</span>
+            <span className="fw-bold">رزرو کنندگان</span>
           </NavLink>
         </NavItem>
         <NavItem>

@@ -1,6 +1,5 @@
 // ** React Imports
-import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import { useState } from "react";
 import ReactPaginate from "react-paginate";
 import { useParams } from "react-router-dom";
 
@@ -8,7 +7,7 @@ import { useParams } from "react-router-dom";
 import { Card, CardHeader, Col, Input, Label, Row } from "reactstrap";
 
 // ** Core Imports
-import { getCourseReserveWithIdAPI } from "../../../../core/services/api/course/course-reserve/useCourseReserveWithId";
+import { useCourseReserveWithId } from "../../../../core/services/api/course/course-reserve/useCourseReserveWithId";
 
 // ** Third Party Components
 import DataTable from "react-data-table-component";
@@ -22,7 +21,6 @@ import "@styles/react/libs/tables/react-dataTable-component.scss";
 
 const CourseReserve = () => {
   // ** States
-  const [courseReserve, setCourseReserve] = useState();
   const [currentPage, setCurrentPage] = useState(0);
   const [itemOffset, setItemOffset] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -31,6 +29,7 @@ const CourseReserve = () => {
 
   // ** Hooks
   const { id } = useParams();
+  const { data: courseReserve } = useCourseReserveWithId(id);
 
   const endOffset = itemOffset + rowsPerPage;
   const currentItems = courseReserve?.slice(itemOffset, endOffset);
@@ -105,21 +104,6 @@ const CourseReserve = () => {
     );
   };
 
-  // ** Get Course Reserve
-  useEffect(() => {
-    const fetchCourseReserve = async () => {
-      try {
-        const getCourseReserve = await getCourseReserveWithIdAPI(id);
-
-        setCourseReserve(getCourseReserve);
-      } catch (error) {
-        toast.error("مشکلی در دریافت رزرو های این دوره به وجود آمد !");
-      }
-    };
-
-    fetchCourseReserve();
-  }, []);
-
   return (
     <Card>
       <CardHeader tag="h4">رزرو کنندگان دوره</CardHeader>
@@ -167,7 +151,7 @@ const CourseReserve = () => {
           noHeader
           pagination
           data={searchValue.length ? filteredData : currentItems}
-          columns={COURSE_RESERVED_COLUMNS(`/courses/${id}`)}
+          columns={COURSE_RESERVED_COLUMNS(true)}
           className="react-dataTable"
           sortIcon={<ChevronDown size={10} />}
           paginationComponent={CustomPagination}

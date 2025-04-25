@@ -6,7 +6,7 @@ import { Controller, useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 
 // ** Icons Imports
-import { ArrowRight, Facebook, GitHub, Mail, Twitter } from "react-feather";
+import { Facebook, GitHub, Mail, Twitter } from "react-feather";
 
 // Core Imports
 import { useLogin } from "../core/services/api/auth/useLogin.api";
@@ -31,9 +31,9 @@ import {
 } from "reactstrap";
 
 // ** Illustrations Imports
+import logo from "@src/assets/images/common/logo.svg";
 import illustrationsDark from "@src/assets/images/pages/login-v2-dark.svg";
 import illustrationsLight from "@src/assets/images/pages/login-v2.svg";
-import logo from "@src/assets/images/common/logo.svg";
 
 // ** Styles
 import "@styles/react/pages/page-authentication.scss";
@@ -100,7 +100,7 @@ const Login = () => {
             >
               <div className="mb-1">
                 <Label className="form-label" for="login-email">
-                  ایمیل
+                  شماره موبایل یا جیمیل"
                 </Label>
                 <Controller
                   id="login-email"
@@ -108,6 +108,7 @@ const Login = () => {
                   control={control}
                   render={({ field }) => (
                     <Input
+                      id="login-email"
                       placeholder="شماره موبایل یا جیمیل"
                       invalid={errors.phoneOrGmail && true}
                       {...field}

@@ -5,8 +5,6 @@ import ReactPaginate from "react-paginate";
 // ** Reactstrap Imports
 import { Card, CardHeader, Col, Input, Label, Row } from "reactstrap";
 
-// ** Core Imports
-
 // ** Third Party Components
 import DataTable from "react-data-table-component";
 import { ChevronDown } from "react-feather";
@@ -150,12 +148,18 @@ const UserCourseReserve = ({ courseReserve }) => {
             <DataTable
               noHeader
               pagination
+              paginationServer
               data={searchValue.length ? filteredData : currentItems}
               columns={COURSE_RESERVED_PAGE_COLUMNS(true)}
               className="react-dataTable"
               sortIcon={<ChevronDown size={10} />}
               paginationComponent={CustomPagination}
               paginationDefaultPage={currentPage + 1}
+              noDataComponent={
+                <span className="my-2">
+                  دوره ی رزرو شده ای برای این کاربر پیدا نشد !
+                </span>
+              }
             />
           </>
         )}

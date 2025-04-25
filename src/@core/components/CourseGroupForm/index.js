@@ -1,6 +1,5 @@
 // ** React Imports
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 import Select from "react-select";
 import makeAnimated from "react-select/animated";
@@ -13,8 +12,8 @@ import { Controller, useForm } from "react-hook-form";
 import Breadcrumbs from "@components/breadcrumbs";
 
 // ** Core Imports
-import { addCourseGroupAPI } from "../../../core/services/api/course/course-group/add-course-group.api";
-import { updateCourseGroupAPI } from "../../../core/services/api/course/course-group/update-course-group.api";
+import { useAddCourseGroup } from "../../../core/services/api/course/course-group/useAddCourseGroup.api";
+import { useUpdateCourseGroup } from "../../../core/services/api/course/course-group/useUpdateCourseGroup.api";
 import { useCourseList } from "../../../core/services/api/course/useCourseList";
 import { courseGroupFormSchema } from "../../../core/validations/course-group-form.validation";
 
@@ -48,7 +47,6 @@ const CourseGroupForm = ({ group }) => {
   // ** States
   const [courses, setCourses] = useState([]);
   const [defaultCourse, setDefaultCourse] = useState();
-  const [isLoading, setLoading] = useState(false);
 
   // ** Hooks
   const {
@@ -65,55 +63,41 @@ const CourseGroupForm = ({ group }) => {
     resolver: yupResolver(courseGroupFormSchema),
   });
   const navigate = useNavigate();
+  const addCourseGroup = useAddCourseGroup();
+  const updateCourseGroup = useUpdateCourseGroup();
 
   const { data: courseList } = useCourseList(1, 100000);
 
   const onSubmit = async (values) => {
-    try {
-      setLoading(true);
+    const { groupName, groupCapacity, courseId } = values;
 
-      const { groupName, groupCapacity, courseId } = values;
+    const data = onFormData({
+      id: group ? group.groupId : undefined,
+      groupName,
+      groupCapacity,
+      courseId: courseId.value,
+    });
 
-      const data = onFormData({
-        id: group ? group.groupId : undefined,
-        groupName,
-        groupCapacity,
-        courseId: courseId.value,
-      });
-
-      const sendCourseGroup = group
-        ? await updateCourseGroupAPI(data)
-        : await addCourseGroupAPI(data);
-
-      if (sendCourseGroup.success) {
-        toast.success(`گروه با موفقیت ${group ? "ویرایش" : "ایجاد"} شد !`);
-
-        navigate("/course-groups");
-      } else {
-        toast.error(
-          `مشکلی در ${group ? "ویرایش" : "ایجاد"} گروه به وجود آمد !`
-        );
-      }
-    } catch (error) {
-      setLoading(false);
-
-      toast.error(`مشکلی در ${group ? "ویرایش" : "ایجاد"} گروه به وجود آمد !`);
-    } finally {
-      setLoading(false);
-    }
+    group
+      ? updateCourseGroup.mutate(data, {
+          onSuccess: () => navigate("/course-groups"),
+        })
+      : addCourseGroup.mutate(data, {
+          onSuccess: () => navigate("/course-groups"),
+        });
   };
 
   const animatedComponents = makeAnimated();
 
   useEffect(() => {
     const fetchCourses = async () => {
-      const convertCourses = convertOptions(courseList.courseDtos);
+      const convertCourses = convertOptions(courseList?.courseDtos);
 
       setCourses(convertCourses);
     };
 
     fetchCourses();
-  }, []);
+  }, [courseList]);
 
   useEffect(() => {
     if (group) {
@@ -223,9 +207,15 @@ const CourseGroupForm = ({ group }) => {
                       type="submit"
                       color="primary"
                       className="me-1 d-flex align-items-center submit-button"
-                      disabled={isLoading}
+                      disabled={
+                        group
+                          ? updateCourseGroup.isPending
+                          : addCourseGroup.isPending
+                      }
                     >
-                      {isLoading && (
+                      {(group
+                        ? updateCourseGroup.isPending
+                        : addCourseGroup.isPending) && (
                         <Spinner size="sm" className="loading-spinner" />
                       )}
                       <span>{group ? "ویرایش" : "ایجاد"} گروه</span>

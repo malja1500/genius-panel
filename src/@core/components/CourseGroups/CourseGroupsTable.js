@@ -10,6 +10,9 @@ import DataTable from "react-data-table-component";
 import { ChevronDown, FileText, Share } from "react-feather";
 import ReactPaginate from "react-paginate";
 
+// ** Utility
+import { useTimeOut } from "../../../utility/hooks/useTimeOut";
+
 // ** Reactstrap Imports
 import {
   Button,
@@ -33,7 +36,6 @@ const CustomHeader = ({
   handlePerPage,
   rowsPerPage,
   handleFilter,
-  searchText,
 }) => {
   // ** Converts table to CSV
   function convertArrayOfObjectsToCSV(array) {
@@ -78,6 +80,7 @@ const CustomHeader = ({
     link.setAttribute("download", filename);
     link.click();
   }
+
   return (
     <div className="invoice-list-table-header w-100 me-1 ms-50 mt-2 mb-75">
       <Row>
@@ -95,7 +98,7 @@ const CustomHeader = ({
               <option value="10">10</option>
               <option value="25">25</option>
               <option value="50">50</option>
-              <option value="50">100</option>
+              <option value="100">100</option>
             </Input>
           </div>
         </Col>
@@ -111,7 +114,6 @@ const CustomHeader = ({
               id="search-invoice"
               className="ms-50 w-100"
               type="text"
-              value={searchText}
               onChange={(e) => handleFilter(e.target.value)}
             />
           </div>
@@ -150,15 +152,18 @@ const CustomHeader = ({
 
 const CourseGroupsTable = ({
   courseGroups,
+  isLoading,
   rowsPerPage,
   currentPage,
-  searchText,
   setSortColumn,
   setRowsPerPage,
   setCurrentPage,
   setSort,
   setSearchText,
 }) => {
+  // ** Hooks
+  const textTimeOut = useTimeOut();
+
   // ** Function in get data on page change
   const handlePagination = (page) => {
     setCurrentPage(page.selected + 1);
@@ -166,15 +171,19 @@ const CourseGroupsTable = ({
 
   // ** Function in get data on rows per page
   const handlePerPage = (e) => {
-    const value = parseInt(e.currentTarget.value);
+    setCurrentPage(1);
 
+    const value = parseInt(e.currentTarget.value);
     setRowsPerPage(value);
   };
 
   // ** Function in get data on search query change
   const handleFilter = (val) => {
     setCurrentPage(1);
-    setSearchText(val);
+
+    textTimeOut(() => {
+      setSearchText(val);
+    }, 800);
   };
 
   // ** Custom Pagination
@@ -185,18 +194,23 @@ const CourseGroupsTable = ({
       <ReactPaginate
         previousLabel={""}
         nextLabel={""}
-        pageCount={count || 1}
+        breakLabel="..."
+        pageCount={Math.ceil(count) || 1}
+        marginPagesDisplayed={2}
+        pageRangeDisplayed={2}
         activeClassName="active"
         forcePage={currentPage !== 0 ? currentPage - 1 : 0}
         onPageChange={(page) => handlePagination(page)}
-        pageClassName={"page-item"}
-        nextLinkClassName={"page-link"}
-        nextClassName={"page-item next"}
-        previousClassName={"page-item prev"}
-        previousLinkClassName={"page-link"}
-        pageLinkClassName={"page-link"}
+        pageClassName="page-item"
+        breakClassName="page-item"
+        nextLinkClassName="page-link"
+        pageLinkClassName="page-link"
+        breakLinkClassName="page-link"
+        previousLinkClassName="page-link"
+        nextClassName="page-item next-item"
+        previousClassName="page-item prev-item"
         containerClassName={
-          "pagination react-paginate justify-content-end my-2 pe-1"
+          "pagination react-paginate separated-pagination pagination-sm justify-content-end pe-1 mt-1"
         }
       />
     );
@@ -220,7 +234,7 @@ const CourseGroupsTable = ({
 
   return (
     <Fragment>
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden dataTableCard">
         <div className="react-dataTable">
           <DataTable
             noHeader
@@ -238,16 +252,15 @@ const CourseGroupsTable = ({
             subHeaderComponent={
               <CustomHeader
                 courseGroups={courseGroups}
-                searchText={searchText}
                 rowsPerPage={rowsPerPage}
                 handleFilter={handleFilter}
                 handlePerPage={handlePerPage}
               />
             }
             noDataComponent={
-              <div className="data-not-found-text">
-                <span>گروهی پیدا نشد !</span>
-              </div>
+              <span className="data-not-found-text">
+                {isLoading ? "در حال دریافت گروه ها ..." : "گروهی پیدا نشد !"}
+              </span>
             }
           />
         </div>

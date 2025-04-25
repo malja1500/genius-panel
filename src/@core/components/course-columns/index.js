@@ -1,7 +1,6 @@
 // ** React Imports
-import { useState } from "react";
-import toast from "react-hot-toast";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 // ** Reactstrap Imports
 import {
@@ -25,12 +24,12 @@ import {
 } from "react-feather";
 
 // ** Core Imports
-import { getCourseReserveWithIdAPI } from "../../../core/services/api/course/course-reserve/useCourseReserveWithId";
+import { useCourseReserveWithId } from "../../../core/services/api/course/course-reserve/useCourseReserveWithId";
 
-// ** Util Imports
+// ** Utils
 import { useHandleActiveInactiveCourse } from "../../../utility/active-inactive-course.utils";
-import { useHandleDeleteCourse } from "../../../utility/delete-course-alert.utils";
 import { persianNumberFormatter } from "../../../utility/persian-number-formatter-helper";
+import { useHandleDeleteCourse } from "../../../utility/useDeleteCourseAlert";
 
 // ** Custom Components
 import CourseReservedModal from "./CourseReservedModal";
@@ -39,37 +38,40 @@ import CourseReservedModal from "./CourseReservedModal";
 import blankThumbnail from "../../../assets/images/common/blank-thumbnail.jpg";
 
 // ** Table columns
-export const COURSE_COLUMNS = (redirectUrl) => [
+export const COURSE_COLUMNS = [
   {
     name: "نام دوره",
     sortable: true,
     minWidth: "180px",
     sortField: "title",
-    cell: (row) => (
-      <div className="d-flex justify-content-left align-items-center gap-1">
-        <img
-          src={
-            !row.tumbImageAddress ||
-            row.tumbImageAddress === "undefined" ||
-            row.tumbImageAddress === "<string>"
-              ? blankThumbnail
-              : row.tumbImageAddress
-          }
-          className="course-column-image"
-        />
-        <div className="d-flex flex-column">
-          <Link
-            to={`/courses/${row.courseId}`}
-            className="course-column-truncate text-body"
-          >
-            <span className="fw-bolder text-primary">{row.title}</span>
-          </Link>
-          <small className="text-truncate text-muted mb-0">
-            {row.typeName}
-          </small>
+    cell: (row) => {
+      const [courseImageSrc, setCourseImageSrc] = useState();
+
+      useEffect(() => {
+        setCourseImageSrc(row.tumbImageAddress ?? blankThumbnail);
+      }, [row]);
+
+      return (
+        <div className="d-flex justify-content-left align-items-center gap-1">
+          <img
+            src={courseImageSrc}
+            onError={() => setCourseImageSrc(blankThumbnail)}
+            className="course-column-image"
+          />
+          <div className="d-flex flex-column">
+            <Link
+              to={`/courses/${row.courseId}`}
+              className="course-column-truncate text-body"
+            >
+              <span className="fw-bolder text-primary">{row.title}</span>
+            </Link>
+            <small className="text-truncate text-muted mb-0">
+              {row.typeName}
+            </small>
+          </div>
         </div>
-      </div>
-    ),
+      );
+    },
   },
   {
     name: "نام مدرس",
@@ -111,8 +113,6 @@ export const COURSE_COLUMNS = (redirectUrl) => [
     sortField: "active",
     cell: (row) => {
       // ** Hooks
-      const navigate = useNavigate();
-
       const handleActiveInactiveCourse = useHandleActiveInactiveCourse();
 
       return (
@@ -125,14 +125,7 @@ export const COURSE_COLUMNS = (redirectUrl) => [
               : "light-warning"
           }
           className="course-column-badge cursor-pointer"
-          onClick={() =>
-            handleActiveInactiveCourse(
-              row.isActive,
-              row.courseId,
-              navigate,
-              redirectUrl
-            )
-          }
+          onClick={() => handleActiveInactiveCourse(row.isActive, row.courseId)}
         >
           {row.isActive ? "فعال" : "غیر فعال"}
         </Badge>
@@ -170,11 +163,10 @@ export const COURSE_COLUMNS = (redirectUrl) => [
     cell: (row) => {
       // ** States
       const [modal, setModal] = useState(null);
-      const [courseReserve, setCourseReserve] = useState();
 
       // ** Hooks
-      const navigate = useNavigate();
-
+      const { data: courseReserve, isLoading: isCourseReserveLoading } =
+        useCourseReserveWithId(row.courseId);
       const handleActiveInactiveCourse = useHandleActiveInactiveCourse();
       const handleDeleteCourse = useHandleDeleteCourse();
 
@@ -187,26 +179,13 @@ export const COURSE_COLUMNS = (redirectUrl) => [
         }
       };
 
-      const fetchCourseReserve = async () => {
-        try {
-          const getCourseReserve = await getCourseReserveWithIdAPI(
-            row.courseId
-          );
-
-          setCourseReserve(getCourseReserve);
-        } catch (error) {
-          toast.error("مشکلی در دریافت لیست رزرو دوره به وجود آمد ...");
-        }
-      };
-
-      const handleCourseReserveClick = () => {
-        fetchCourseReserve();
+      const handleCourseReserveClick = async () => {
         toggleModal(row.courseId);
       };
 
       return (
         <div className="column-action d-flex align-items-center gap-1">
-          <UncontrolledDropdown>
+          <UncontrolledDropdown direction="top">
             <DropdownToggle tag="span">
               <MoreVertical size={17} className="cursor-pointer" />
             </DropdownToggle>
@@ -243,12 +222,7 @@ export const COURSE_COLUMNS = (redirectUrl) => [
               <DropdownItem
                 className="w-100"
                 onClick={() =>
-                  handleActiveInactiveCourse(
-                    row.isActive,
-                    row.courseId,
-                    navigate,
-                    redirectUrl
-                  )
+                  handleActiveInactiveCourse(row.isActive, row.courseId)
                 }
               >
                 {row.isActive ? (
@@ -272,7 +246,7 @@ export const COURSE_COLUMNS = (redirectUrl) => [
               toggleModal={toggleModal}
               modal={modal}
               courseReserve={courseReserve}
-              redirectUrl={redirectUrl}
+              isLoading={isCourseReserveLoading}
             />
           </div>
         </div>

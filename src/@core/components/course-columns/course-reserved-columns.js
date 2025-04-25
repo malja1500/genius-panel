@@ -10,11 +10,11 @@ import { useUserWithId } from "../../../core/services/api/user/useUserWithId";
 // ** Image Imports
 import blankThumbnail from "../../../assets/images/common/blank-thumbnail.jpg";
 
-export const COURSE_RESERVED_COLUMNS = (redirectUrl) => [
+export const COURSE_RESERVED_COLUMNS = (isCourseDetails) => [
   {
     name: "نام رزرو کننده",
     reorder: true,
-    minWidth: "250px",
+    minWidth: isCourseDetails ? "170px" : "250px",
     cell: (row) => {
       const { data: user } = useUserWithId(row.studentId);
 
@@ -43,5 +43,5 @@ export const COURSE_RESERVED_COLUMNS = (redirectUrl) => [
       );
     },
   },
-  ...COURSE_RESERVED_COMMON_COLUMNS(redirectUrl),
+  ...COURSE_RESERVED_COMMON_COLUMNS(false),
 ];

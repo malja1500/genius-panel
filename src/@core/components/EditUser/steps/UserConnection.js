@@ -5,8 +5,6 @@ import { Fragment, useEffect } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { ArrowLeft, ArrowRight } from "react-feather";
 import { Controller, useForm } from "react-hook-form";
-import Swal from "sweetalert2";
-import withReactContent from "sweetalert2-react-content";
 
 // ** Reactstrap Imports
 import {
@@ -22,8 +20,6 @@ import {
 
 // ** Core Imports
 import { userConnectionFormSchema } from "../../../../core/validations/edit-user/user-connection-form.validation";
-
-const MySwal = withReactContent(Swal);
 
 const UserConnection = ({
   stepper,
@@ -43,29 +39,6 @@ const UserConnection = ({
     resolver: yupResolver(userConnectionFormSchema),
   });
 
-  const handleSubmitAlert = async () => {
-    MySwal.fire({
-      title: "آیا از ویرایش کاربر مطمئن هستید؟",
-      text: "در صورتی که از ویرایش کاربر مورد نظر مطمئن هستید این کار را انجام دهید.",
-      icon: "warning",
-      customClass: {
-        confirmButton: "btn btn-primary",
-        cancelButton: "btn btn-danger ms-1",
-      },
-      buttonsStyling: false,
-      inputAttributes: {
-        autocapitalize: "off",
-      },
-      showCancelButton: true,
-      confirmButtonText: "ویرایش کاربر",
-      cancelButtonText: "انصراف",
-      showLoaderOnConfirm: true,
-      async preConfirm() {
-        handleSubmitFn();
-      },
-    });
-  };
-
   const onSubmit = (e) => {
     const { phoneNumber, gmail, recoveryEmail, telegramLink, linkdinProfile } =
       e;
@@ -77,10 +50,6 @@ const UserConnection = ({
       telegramLink,
       linkdinProfile,
     });
-
-    if (userConnection !== null) {
-      handleSubmitAlert();
-    }
   };
 
   useEffect(() => {
@@ -92,6 +61,10 @@ const UserConnection = ({
       setValue("linkdinProfile", user.linkdinProfile);
     }
   }, [user, setValue]);
+
+  useEffect(() => {
+    if (userConnection !== null) handleSubmitFn();
+  }, [userConnection]);
 
   return (
     <Fragment>

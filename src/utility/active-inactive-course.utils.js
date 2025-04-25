@@ -15,9 +15,9 @@ export const useHandleActiveInactiveCourse = () => {
       title: isActive
         ? "آیا از غیر فعال دوره مطمئن هستید؟"
         : "آیا از فعال دوره مطمئن هستید ؟",
-      text: `آیا از ${
+      text: `در صورت مطمئن بودن از ${
         isActive ? "غیر فعال" : "فعال"
-      } کردن دوره اطمینان کامل دارید ؟`,
+      } کردن دوره این کار را انجام دهید`,
       icon: "warning",
       customClass: {
         confirmButton: "btn btn-primary",
@@ -31,10 +31,34 @@ export const useHandleActiveInactiveCourse = () => {
       confirmButtonText: isActive ? "غیر فعال کردن" : "فعال کردن",
       cancelButtonText: "انصراف",
       showLoaderOnConfirm: true,
-      async preConfirm() {
-        (await activeInactiveCourse).mutate({
-          active: !isActive,
-          id: courseId,
+      preConfirm() {
+        return new Promise((resolve) => {
+          activeInactiveCourse.mutate(
+            {
+              active: !isActive,
+              id: courseId,
+            },
+            {
+              onSuccess: () => {
+                MySwal.fire({
+                  title: `دوره با موفقیت ${isActive ? "غیر فعال" : "فعال"} شد`,
+                  icon: "success",
+                  confirmButtonText: "باشه",
+                });
+                resolve();
+              },
+              onError: () => {
+                MySwal.fire({
+                  title: `مشکلی در ${
+                    isActive ? "غیر فعال" : "فعال"
+                  } کردن دوره به وجود آمد !`,
+                  icon: "error",
+                  confirmButtonText: "باشه",
+                });
+                resolve();
+              },
+            }
+          );
         });
       },
     });

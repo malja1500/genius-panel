@@ -41,7 +41,7 @@ export const USER_FAVORITE_COURSES_COLUMNS = [
     },
   },
   {
-    name: "آخرین بروزرسانی",
+    name: "آخرین ویرایش",
     reorder: true,
     minWidth: "200px",
     cell: (row) => {

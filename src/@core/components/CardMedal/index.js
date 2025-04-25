@@ -22,10 +22,8 @@ const CardMedal = ({ dashboardData }) => {
           !
         </h5>
         <CardText className="font-small-3">شما مدال طلایی دارید !</CardText>
-        <h3 className="mb-75 mt-2 pt-50">
-          <a href="/" onClick={(e) => e.preventDefault()}>
-            {dashboardData?.allPaymentCost || 0} تومان
-          </a>
+        <h3 className="mb-75 mt-2 pt-50 text-primary">
+          {dashboardData?.allPaymentCost || 0} تومان
         </h3>
         <Button tag={Link} to="/courses" color="primary">
           نمایش دوره ها

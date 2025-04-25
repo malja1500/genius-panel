@@ -49,7 +49,7 @@ const CourseFeatures = ({
   teacherIdState,
   classIdState,
   termIdState,
-  isLoading,
+  isPending,
   setCourseLvlId,
   setCourseTypeIdState,
   setTeacherIdState,
@@ -93,16 +93,7 @@ const CourseFeatures = ({
       setTeacherIdState(e.teacherId?.value);
       setClassIdState(e.classId?.value);
       setTermIdState(+e.termId?.value);
-
-      if (
-        courseLvlId &&
-        courseTypeIdState &&
-        teacherIdState &&
-        classIdState &&
-        termIdState
-      ) {
-        handleSubmitFn();
-      }
+      if (course) handleSubmitFn();
     }
   };
 
@@ -360,9 +351,9 @@ const CourseFeatures = ({
             type="submit"
             color="primary"
             className="btn-next d-flex align-items-center submit-button"
-            disabled={isLoading}
+            disabled={isPending}
           >
-            {isLoading && <Spinner size="sm" className="loading-spinner" />}
+            {isPending && <Spinner size="sm" className="loading-spinner" />}
             <span className="align-middle d-sm-inline-block d-none">
               {course ? "آپدیت" : "ایجاد"} دوره
             </span>

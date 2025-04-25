@@ -7,8 +7,10 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
 // ** Core Imports
-import { addReplyCommentAPI } from "../../../core/services/api/course/course-comments/add-reply-course-comment.api";
-import { deleteCourseCommentAPI } from "../../../core/services/api/course/course-comments/delete-course-comment.api";
+import { useReplyCourseComment } from "../../../core/services/api/course/course-comments/useReplyCourseComment.api";
+import { useDeleteCourseComment } from "../../../core/services/api/course/course-comments/useDeleteCourseComment.api";
+import { useAcceptCourseComment } from "../../../core/services/api/course/course-comments/useAcceptCourseComment.api";
+import { useRejectCourseComment } from "../../../core/services/api/course/course-comments/useRejectCourseComment.api";
 
 // ** Utils
 import { onFormData } from "../../../utility/form-data-helper.utils";
@@ -42,8 +44,6 @@ import {
   Row,
   UncontrolledDropdown,
 } from "reactstrap";
-import { acceptCourseCommentAPI } from "../../../core/services/api/course/course-comments/accept-course-comment.api";
-import { rejectCourseCommentAPI } from "../../../core/services/api/course/course-comments/reject-course-comment.api";
 
 const CommentDetails = ({ comment, openComment, setOpenComment }) => {
   // ** States

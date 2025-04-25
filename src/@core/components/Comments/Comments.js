@@ -8,7 +8,7 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
 // ** Core Imports
-import { deleteCourseCommentAPI } from "../../../core/services/api/course/course-comments/delete-course-comment.api";
+import { useDeleteCourseComment } from "../../../core/services/api/course/course-comments/useDeleteCourseComment.api";
 
 // ** Comment Components Imports
 import CommentCard from "./CommentCard";

@@ -1,12 +1,11 @@
 // ** React Imports
-import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import { useState } from "react";
 
 // ** Reactstrap Imports
 import { Card } from "reactstrap";
 
 // ** Core Imports
-import { getCourseGroupsAPI } from "../core/services/api/course/course-group/get-course-groups.api";
+import { useCourseGroups } from "../core/services/api/course/course-group/useCourseGroups.api";
 
 // ** Custom Components
 import BreadCrumbs from "../@core/components/breadcrumbs";
@@ -18,49 +17,20 @@ import "@styles/react/libs/tables/react-dataTable-component.scss";
 
 const CourseGroupsPage = () => {
   // ** States
-  const [courseGroups, setCourseGroups] = useState();
   const [sort, setSort] = useState("desc");
   const [sortColumn, setSortColumn] = useState("id");
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(7);
   const [searchText, setSearchText] = useState();
 
-  useEffect(() => {
-    const fetchCourseGroups = async () => {
-      try {
-        const getCourseGroups = await getCourseGroupsAPI(
-          currentPage,
-          rowsPerPage
-        );
-
-        setCourseGroups(getCourseGroups);
-      } catch (error) {
-        toast.error("مشکلی در دریافت گروه های دوره به وجود آمد !");
-      }
-    };
-
-    fetchCourseGroups();
-  }, []);
-
-  useEffect(() => {
-    const fetchCourseGroups = async () => {
-      try {
-        const getCourseGroups = await getCourseGroupsAPI(
-          currentPage,
-          rowsPerPage,
-          sortColumn,
-          sort,
-          searchText
-        );
-
-        setCourseGroups(getCourseGroups);
-      } catch (error) {
-        toast.error("مشکلی در دریافت گروه های دوره به وجود آمد !");
-      }
-    };
-
-    fetchCourseGroups();
-  }, [searchText, sort, sortColumn, currentPage, rowsPerPage]);
+  // ** Hooks
+  const { data: courseGroups, isLoading } = useCourseGroups(
+    currentPage,
+    rowsPerPage,
+    sortColumn,
+    sort,
+    searchText ? searchText : undefined
+  );
 
   return (
     <div className="invoice-list-wrapper">
@@ -74,9 +44,9 @@ const CourseGroupsPage = () => {
       <Card className="rounded">
         <CourseGroupsTable
           courseGroups={courseGroups}
+          isLoading={isLoading}
           currentPage={currentPage}
           rowsPerPage={rowsPerPage}
-          searchText={searchText}
           setCurrentPage={setCurrentPage}
           setRowsPerPage={setRowsPerPage}
           setSearchText={setSearchText}
